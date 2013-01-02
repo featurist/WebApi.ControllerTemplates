@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>WebApi.ControllerTemplates</id>
+    <version>0.0.1</version>
+    <authors>Josh Chisholm</authors>
+    <owners>Josh Chisholm</owners>
+    <projectUrl>https://github.com/featurist/WebApi.ControllerTemplates</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Templates for RESTful controllers in ASP.NET WebApi</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>http</tags>
+  </metadata>
+  <files>
+    <file src="WebApi.ControllerTemplates\bin\Debug\WebApi.ControllerTemplates.dll" target="lib\net40" />
+  </files>
+</package>
