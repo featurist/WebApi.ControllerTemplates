@@ -1,4 +1,4 @@
-﻿namespace WebApi.ControllerTemplates
+﻿namespace WebApi.ControllerTemplates.Roles
 {
     public interface UrlGenerator
     {

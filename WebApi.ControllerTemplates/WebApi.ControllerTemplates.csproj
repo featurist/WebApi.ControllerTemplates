@@ -46,23 +46,25 @@
   <ItemGroup>
     <Compile Include="AbstractRestController.cs" />
     <Compile Include="CollectionController.cs" />
-    <Compile Include="Deleter.cs" />
-    <Compile Include="Deserialiser.cs" />
+    <Compile Include="Roles\Deleter.cs" />
+    <Compile Include="Roles\Deserialiser.cs" />
     <Compile Include="ETagAware.cs" />
+    <Compile Include="GetIndexController.cs" />
     <Compile Include="HttpRequestMessageExtensions.cs" />
-    <Compile Include="Indexer.cs" />
-    <Compile Include="Inserter.cs" />
+    <Compile Include="Roles\Indexer.cs" />
+    <Compile Include="Roles\Inserter.cs" />
     <Compile Include="InstanceController.cs" />
+    <Compile Include="GetInstanceController.cs" />
     <Compile Include="LastModifiedAware.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetrievedOrNotModified.cs" />
-    <Compile Include="Retriever.cs" />
-    <Compile Include="Serialiser.cs" />
-    <Compile Include="Upserter.cs" />
+    <Compile Include="Roles\Retriever.cs" />
+    <Compile Include="Roles\Serialiser.cs" />
+    <Compile Include="Roles\Upserter.cs" />
     <Compile Include="UpsertResult.cs" />
     <Compile Include="UpsertResultExtensions.cs" />
-    <Compile Include="UrlGenerator.cs" />
+    <Compile Include="Roles\UrlGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

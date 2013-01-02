@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using WebApi.ControllerTemplates.Roles;
 
 namespace WebApi.ControllerTemplates
 {
@@ -44,15 +45,7 @@ namespace WebApi.ControllerTemplates
 
         public HttpResponseMessage Get()
         {
-            var index = _indexer.Index(Request.Headers.IfModifiedSince, Request.Headers.FirstIfNoneMatch());
-            if (index.WasRetrieved)
-            {
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = _serialiser.Serialise(index.Value);
-                AddCachingHeadersToResponse(response, index.Value);
-                return response;
-            }
-            return new HttpResponseMessage(HttpStatusCode.NotModified);
+            return new GetIndexController<TCollection>(_indexer, _serialiser) { Request = Request }.Get();
         }
 
         public HttpResponseMessage Post()

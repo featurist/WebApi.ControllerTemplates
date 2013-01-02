@@ -1,6 +1,6 @@
 using System.Net.Http;
 
-namespace WebApi.ControllerTemplates
+namespace WebApi.ControllerTemplates.Roles
 {
     public interface Serialiser<in TInstance>
     {

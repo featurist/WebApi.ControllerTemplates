@@ -151,7 +151,7 @@ namespace WebApi.ControllerTemplates.Tests
             var repo = new ChartRepo();
             var controller = new InstanceController<Chart, ChartRepo>(repo)
             {
-                Request = new HttpRequestMessage { Content = new StringContent("Quantitive Easing") }
+                Request = new HttpRequestMessage { Content = new StringContent("Quantitative Easing") }
             };
             var response = controller.Put("321");
             response.StatusCode.ShouldEqual(HttpStatusCode.Created);
