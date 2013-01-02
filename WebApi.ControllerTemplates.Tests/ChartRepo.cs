@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using RestfulRoles;
 using WebApi.ControllerTemplates.Roles;
 
 namespace WebApi.ControllerTemplates.Tests

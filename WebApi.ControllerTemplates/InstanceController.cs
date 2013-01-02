@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using RestfulRoles;
 using WebApi.ControllerTemplates.Roles;
 
 namespace WebApi.ControllerTemplates

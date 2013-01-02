@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>WebApi.ControllerTemplates</id>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <authors>Josh Chisholm</authors>
     <owners>Josh Chisholm</owners>
     <projectUrl>https://github.com/featurist/WebApi.ControllerTemplates</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Templates for RESTful controllers in ASP.NET WebApi</description>
-    <releaseNotes>Separated GET methods</releaseNotes>
+    <releaseNotes>Separated REST roles from WebApi roles</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>http</tags>
   </metadata>
