@@ -51,9 +51,7 @@ namespace WebApi.ControllerTemplates
         public virtual HttpResponseMessage Put(string id)
         {
             var instance = _deserialiser.Deserialise(Request);
-            var upsertResult = _upserter.Upsert(id, instance);
-            var response = Request.CreateResponse(upsertResult.ToHttpStatusCode());
-            return response;
+            return PutDeserialised(id, instance);
         }
 
         public virtual HttpResponseMessage Delete(string id)
@@ -65,6 +63,13 @@ namespace WebApi.ControllerTemplates
         public virtual HttpResponseMessage Head(string id)
         {
             return Get(id);
+        }
+
+        protected virtual HttpResponseMessage PutDeserialised(string id, TInstance instance)
+        {
+            var upsertResult = _upserter.Upsert(id, instance);
+            var response = Request.CreateResponse(upsertResult.ToHttpStatusCode());
+            return response;
         }
     }
 }
