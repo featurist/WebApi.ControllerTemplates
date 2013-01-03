@@ -43,12 +43,12 @@ namespace WebApi.ControllerTemplates
             _deleter = deleter;
         }
 
-        public HttpResponseMessage Get(string id)
+        public virtual HttpResponseMessage Get(string id)
         {
             return new GetInstanceController<TInstance>(_retriever, _serialiser) { Request = Request }.Get(id);
         }
 
-        public HttpResponseMessage Put(string id)
+        public virtual HttpResponseMessage Put(string id)
         {
             var instance = _deserialiser.Deserialise(Request);
             var upsertResult = _upserter.Upsert(id, instance);
@@ -56,13 +56,13 @@ namespace WebApi.ControllerTemplates
             return response;
         }
 
-        public HttpResponseMessage Delete(string id)
+        public virtual HttpResponseMessage Delete(string id)
         {
             _deleter.Delete(id);
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        public HttpResponseMessage Head(string id)
+        public virtual HttpResponseMessage Head(string id)
         {
             return Get(id);
         }

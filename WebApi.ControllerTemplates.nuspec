@@ -2,15 +2,15 @@
 <package>
   <metadata>
     <id>WebApi.ControllerTemplates</id>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <authors>Josh Chisholm</authors>
     <owners>Josh Chisholm</owners>
     <projectUrl>https://github.com/featurist/WebApi.ControllerTemplates</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Templates for RESTful controllers in ASP.NET WebApi</description>
-    <releaseNotes>Separated ETag / Last Modified roles</releaseNotes>
+    <releaseNotes>All actions virtual</releaseNotes>
     <copyright>Copyright 2013</copyright>
-    <tags>http</tags>
+    <tags>webapi</tags>
   </metadata>
   <files>
     <file src="WebApi.ControllerTemplates\bin\Debug\WebApi.ControllerTemplates.dll" target="lib\net40" />

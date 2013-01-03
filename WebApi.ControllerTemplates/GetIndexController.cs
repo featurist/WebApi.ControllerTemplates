@@ -16,7 +16,7 @@ namespace WebApi.ControllerTemplates
             _serialiser = serialiser;
         }
 
-        public HttpResponseMessage Get()
+        public virtual HttpResponseMessage Get()
         {
             var index = _indexer.Index(Request.Headers.IfModifiedSince, Request.Headers.FirstIfNoneMatch());
             if (index.WasRetrieved)

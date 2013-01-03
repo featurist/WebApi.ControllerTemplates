@@ -16,7 +16,7 @@ namespace WebApi.ControllerTemplates
             _serialiser = serialiser;
         }
 
-        public HttpResponseMessage Get(string id)
+        public virtual HttpResponseMessage Get(string id)
         {
             RetrieveResult<TInstance> result;
             try

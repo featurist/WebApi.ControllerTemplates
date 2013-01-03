@@ -44,12 +44,12 @@ namespace WebApi.ControllerTemplates
             _urlGenerator = urlGenerator;
         }
 
-        public HttpResponseMessage Get()
+        public virtual HttpResponseMessage Get()
         {
             return new GetIndexController<TCollection>(_indexer, _serialiser) { Request = Request }.Get();
         }
 
-        public HttpResponseMessage Post()
+        public virtual HttpResponseMessage Post()
         {
             var deserialised = _deserialiser.Deserialise(Request);
             var id = _inserter.Insert(deserialised);
@@ -59,12 +59,12 @@ namespace WebApi.ControllerTemplates
             return response;
         }
 
-        public HttpResponseMessage Head()
+        public virtual HttpResponseMessage Head()
         {
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
-        public HttpResponseMessage Delete()
+        public virtual HttpResponseMessage Delete()
         {
             return new HttpResponseMessage(HttpStatusCode.NotAcceptable);
         }
