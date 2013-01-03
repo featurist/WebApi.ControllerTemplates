@@ -19,7 +19,7 @@ namespace WebApi.ControllerTemplates.Tests
         Indexer<ChartIndexWithETag>,
         Indexer<ChartIndexWithLastModified>
     {
-        public RetrievedOrNotModified<Chart> Retrieve(string id, DateTimeOffset? ifModifiedSince, string ifNoneMatch)
+        public RetrieveResult<Chart> Retrieve(string id, DateTimeOffset? ifModifiedSince, string ifNoneMatch)
         {
             if (!ContainsKey(id))
             {
@@ -29,17 +29,17 @@ namespace WebApi.ControllerTemplates.Tests
             var eTagAware = chart as ETagAware;
             if (eTagAware != null && eTagAware.ETag == ifNoneMatch)
             {
-                return RetrievedOrNotModified<Chart>.NotModified;
+                return RetrieveResult<Chart>.NotModified;
             }
             
             var lastModifiedAware = chart as LastModifiedAware;
             if (lastModifiedAware != null && ifModifiedSince.HasValue &&
                 lastModifiedAware.LastModified <= ifModifiedSince.Value)
             {
-                return RetrievedOrNotModified<Chart>.NotModified;
+                return RetrieveResult<Chart>.NotModified;
             }
-            
-            return RetrievedOrNotModified<Chart>.Retrieved(chart);
+
+            return RetrieveResult<Chart>.Retrieved(chart);
         }
 
         public UpsertResult Upsert(string id, Chart chart)
@@ -85,24 +85,24 @@ namespace WebApi.ControllerTemplates.Tests
             return "/charts/" + id;
         }
 
-        public RetrievedOrNotModified<ChartIndex> Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
+        public RetrieveResult<ChartIndex> Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
         {
-            return new RetrievedOrNotModified<ChartIndex> { Value = new ChartIndex { Count = Count }, WasRetrieved = true };
+            return new RetrieveResult<ChartIndex> { Value = new ChartIndex { Count = Count }, WasRetrieved = true };
         }
 
-        RetrievedOrNotModified<ChartIndexWithETag> Indexer<ChartIndexWithETag>.Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
+        RetrieveResult<ChartIndexWithETag> Indexer<ChartIndexWithETag>.Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
         {
-            return ifNoneMatch == IndexETag ? RetrievedOrNotModified<ChartIndexWithETag>.NotModified
-                : new RetrievedOrNotModified<ChartIndexWithETag> { Value = new ChartIndexWithETag { Count = Count, ETag = IndexETag }, WasRetrieved = true };
+            return ifNoneMatch == IndexETag ? RetrieveResult<ChartIndexWithETag>.NotModified
+                : new RetrieveResult<ChartIndexWithETag> { Value = new ChartIndexWithETag { Count = Count, ETag = IndexETag }, WasRetrieved = true };
         }
 
-        RetrievedOrNotModified<ChartIndexWithLastModified> Indexer<ChartIndexWithLastModified>.Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
+        RetrieveResult<ChartIndexWithLastModified> Indexer<ChartIndexWithLastModified>.Index(DateTimeOffset? ifModifiedSince, string ifNoneMatch)
         {
             if (IndexLastModified.HasValue && ifModifiedSince.HasValue && IndexLastModified <= ifModifiedSince.Value)
             {
-                return RetrievedOrNotModified<ChartIndexWithLastModified>.NotModified;
+                return RetrieveResult<ChartIndexWithLastModified>.NotModified;
             }
-            return new RetrievedOrNotModified<ChartIndexWithLastModified> { Value = new ChartIndexWithLastModified { Count = Count, LastModified = IndexLastModified }, WasRetrieved = true };
+            return new RetrieveResult<ChartIndexWithLastModified> { Value = new ChartIndexWithLastModified { Count = Count, LastModified = IndexLastModified }, WasRetrieved = true };
         }
 
         public string IndexETag { get; set; }

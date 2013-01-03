@@ -18,7 +18,7 @@ namespace WebApi.ControllerTemplates
 
         public HttpResponseMessage Get(string id)
         {
-            RetrievedOrNotModified<TInstance> result;
+            RetrieveResult<TInstance> result;
             try
             {
                 result = _retriever.Retrieve(id, Request.Headers.IfModifiedSince, Request.Headers.FirstIfNoneMatch());

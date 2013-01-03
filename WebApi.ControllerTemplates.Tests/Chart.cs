@@ -1,4 +1,5 @@
 ﻿using System;
+using RestfulRoles;
 
 namespace WebApi.ControllerTemplates.Tests
 {
