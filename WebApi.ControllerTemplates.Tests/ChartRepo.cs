@@ -44,6 +44,8 @@ namespace WebApi.ControllerTemplates.Tests
 
         public UpsertResult Upsert(string id, Chart chart)
         {
+            if (EnableConflicts) throw new UpsertConflictException("There was a conflict upserting chart " + id);
+
             if (ContainsKey(id))
             {
                 this[id] = chart;
@@ -108,5 +110,7 @@ namespace WebApi.ControllerTemplates.Tests
         public string IndexETag { get; set; }
 
         public DateTimeOffset? IndexLastModified { get; set; }
+
+        public bool EnableConflicts { get; set; }
     }
 }

@@ -170,6 +170,18 @@ namespace WebApi.ControllerTemplates.Tests
         }
 
         [Test]
+        public void PutRespondsWith409WhenUpsertConflicts()
+        {
+            var repo = new ChartRepo { EnableConflicts = true };
+            var controller = new InstanceController<Chart, ChartRepo>(repo)
+            {
+                Request = new HttpRequestMessage { Content = new StringContent("Japanese Inflation") }
+            };
+            var response = controller.Put("765");
+            response.StatusCode.ShouldEqual(HttpStatusCode.Conflict);
+        }
+
+        [Test]
         public void PutUpdatesDeserialisedInstance()
         {
             var repo = new ChartRepo { { "567", new Chart { Title = "Original" } } };

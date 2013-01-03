@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RestfulRoles">
-      <HintPath>..\packages\RestfulRoles.0.0.3\lib\net40\RestfulRoles.dll</HintPath>
+    <Reference Include="RestfulRoles, Version=0.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestfulRoles.0.0.4\lib\net40\RestfulRoles.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

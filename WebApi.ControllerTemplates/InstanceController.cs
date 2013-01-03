@@ -67,9 +67,17 @@ namespace WebApi.ControllerTemplates
 
         protected virtual HttpResponseMessage PutDeserialised(string id, TInstance instance)
         {
-            var upsertResult = _upserter.Upsert(id, instance);
-            var response = Request.CreateResponse(upsertResult.ToHttpStatusCode());
-            return response;
+            try
+            {
+                var upsertResult = _upserter.Upsert(id, instance);
+                return Request.CreateResponse(upsertResult.ToHttpStatusCode());
+            }
+            catch (ConflictException e)
+            {
+                var response = Request.CreateResponse(HttpStatusCode.Conflict);
+                response.Content = new StringContent(e.Message);
+                return response;
+            }
         }
     }
 }
