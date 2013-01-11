@@ -2,13 +2,13 @@
 <package>
   <metadata>
     <id>WebApi.ControllerTemplates</id>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <authors>Josh Chisholm</authors>
     <owners>Josh Chisholm</owners>
     <projectUrl>https://github.com/featurist/WebApi.ControllerTemplates</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Templates for RESTful controllers in ASP.NET WebApi</description>
-    <releaseNotes>Expose PutDeserialised, to override just the post-deserialisation aspect of a PUT</releaseNotes>
+    <releaseNotes>Respond to PUT conflicts with 409</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>webapi</tags>
   </metadata>
