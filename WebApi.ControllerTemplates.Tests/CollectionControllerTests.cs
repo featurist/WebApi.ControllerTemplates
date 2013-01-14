@@ -13,135 +13,140 @@ namespace WebApi.ControllerTemplates.Tests
     {
         const string ETag = "\"684897696a7c876b7a\"";
 
+        private ExampleCollectionController<ChartIndex, Chart, ChartRepo> CreateController()
+        {
+            return new ExampleCollectionController<ChartIndex, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+        }
+
+        private ExampleCollectionController<ChartIndexWithETag, Chart, ChartRepo> CreateControllerWithETagSupport()
+        {
+            return new ExampleCollectionController<ChartIndexWithETag, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+        }
+
+        private ExampleCollectionController<ChartIndexWithLastModified, Chart, ChartRepo> CreateControllerWithLastModifiedSupport()
+        {
+            return new ExampleCollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+        }
+
+        private ChartRepo _repo;
+        
+        [SetUp]
+        public void CreateContext()
+        {
+            _repo = new ChartRepo();
+        }
+
         [Test]
         public void GetRespondsWithDeserialisedIndex()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
+            _repo.AddCharts(2);
+            var controller = CreateController();
             controller.Get().Content.ReadAsStringAsync().Result.ShouldEqual("2 charts");
         }
 
         [Test]
         public void GetRespondsWith200()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            var response = controller.Get();
-            response.StatusCode.ShouldEqual(HttpStatusCode.OK);
+            var controller = CreateController();
+            controller.Get().StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void GetRespondsWithETagWhenIndexSupportsIt()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexETag = ETag;
-            var controller = new CollectionController<ChartIndexWithETag, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
+            _repo.AddCharts(2);
+            _repo.IndexETag = ETag;
+            var controller = CreateControllerWithETagSupport();
             controller.Get().Headers.ETag.Tag.ShouldEqual(ETag);
         }
 
         [Test]
         public void GetRespondsWith304WhenETagAndIfNoneMatchAreEqual()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexETag = ETag;
-            var request = new HttpRequestMessage();
-            var controller = new CollectionController<ChartIndexWithETag, Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
+            _repo.AddCharts(2);
+            _repo.IndexETag = ETag;
+            var controller = CreateControllerWithETagSupport();
+            controller.Request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
             controller.Get().StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
         [Test]
         public void GetRespondsWith304WhenLastModifiedAndIfModifiedSinceAreEqual()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexLastModified = DateTimeOffset.Now;
+            _repo.AddCharts(2);
+            _repo.IndexLastModified = DateTimeOffset.Now;
             var request = new HttpRequestMessage();
-            var controller = new CollectionController<ChartIndexWithETag, Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = repo.IndexLastModified;
+            var controller = CreateControllerWithETagSupport();
+            request.Headers.IfModifiedSince = _repo.IndexLastModified;
             controller.Get().StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
         [Test]
         public void GetRespondsWith200WhenLastModifiedIsLaterThanIfModifiedSince()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexLastModified = DateTimeOffset.Now;
-            var request = new HttpRequestMessage();
-            var controller = new CollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = repo.IndexLastModified.Value.AddSeconds(-1);
+            _repo.AddCharts(2);
+            _repo.IndexLastModified = DateTimeOffset.Now;
+            var controller = CreateControllerWithLastModifiedSupport();
+            controller.Request.Headers.IfModifiedSince = _repo.IndexLastModified.Value.AddSeconds(-1);
             controller.Get().StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void GetRespondsWith304WhenLastModifiedIsEarlierThanIfModifiedSince()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexLastModified = DateTimeOffset.Now;
-            var request = new HttpRequestMessage();
-            var controller = new CollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = repo.IndexLastModified.Value.AddSeconds(1);
+            _repo.AddCharts(2);
+            _repo.IndexLastModified = DateTimeOffset.Now;
+            var controller = CreateControllerWithLastModifiedSupport();
+            controller.Request.Headers.IfModifiedSince = _repo.IndexLastModified.Value.AddSeconds(1);
             controller.Get().StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
         [Test]
         public void GetRespondsWithLastModifiedWhenIndexSupportsIt()
         {
-            var repo = new ChartRepo { { "234", new Chart() }, { "345", new Chart() } };
-            repo.IndexLastModified = DateTimeOffset.Now;
-            var controller = new CollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Get().Content.Headers.LastModified.ShouldEqual(repo.IndexLastModified);
+            _repo.AddCharts(2);
+            _repo.IndexLastModified = DateTimeOffset.Now;
+            var controller = CreateControllerWithLastModifiedSupport();
+            controller.Get().Content.Headers.LastModified.ShouldEqual(_repo.IndexLastModified);
         }
 
         [Test]
         public void HeadRespondsWith200()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Head().StatusCode.ShouldEqual(HttpStatusCode.OK);
+            CreateController().Head().StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void DeleteRespondsWith406()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Delete().StatusCode.ShouldEqual(HttpStatusCode.NotAcceptable);
+            CreateController().Delete().StatusCode.ShouldEqual(HttpStatusCode.NotAcceptable);
         }
 
         [Test]
         public void PostInsertsDeserialisedInstance()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo)
-                                 {
-                                     Request = new HttpRequestMessage { Content = new StringContent ("Selective Reflation") }
-                                 };
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("crunk");
             controller.Post();
-            var chart = repo.Values.Single();
-            chart.Title.ShouldEqual("Selective Reflation");
+            var chart = _repo.Values.Single();
+            chart.Title.ShouldEqual("crunk");
         }
 
         [Test]
         public void PostRespondsWith201()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo)
-            {
-                Request = new HttpRequestMessage { Content = new StringContent("Selective Reflation") }
-            };
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("difribulate");
             controller.Post().StatusCode.ShouldEqual(HttpStatusCode.Created);
         }
 
         [Test]
         public void PostRespondsWithLocation()
         {
-            var repo = new ChartRepo();
-            var controller = new CollectionController<ChartIndex, Chart, ChartRepo>(repo)
-            {
-                Request = new HttpRequestMessage { Content = new StringContent("Selective Reflation") }
-            };
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("blimey");
             var response = controller.Post();
-            response.Headers.Location.ToString().ShouldEqual("/charts/" + repo.Keys.First());
+            response.Headers.Location.ToString().ShouldEqual("/charts/" + _repo.Keys.First());
         }
     }
 }

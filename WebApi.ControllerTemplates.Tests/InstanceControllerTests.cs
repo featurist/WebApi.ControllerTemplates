@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,52 +13,64 @@ namespace WebApi.ControllerTemplates.Tests
     {
         const string ETag = "\"686897696a7c876b7e\"";
 
+        private ExampleInstanceController<Chart, ChartRepo> CreateController()
+        {
+            return new ExampleInstanceController<Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+        }
+
+        private ChartRepo _repo;
+
+        [SetUp]
+        public void CreateRepo()
+        {
+            _repo = new ChartRepo();
+        }
+
         [Test]
         public void GetRespondsWithSerialisedRetrievedInstance()
         {
-            var repo = new ChartRepo {{"123", new Chart {Id = "123"}}};
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Get("123").Content.ReadAsStringAsync().Result.ShouldEqual("Chart 123");
+            _repo.AddCharts(1);
+            var controller = CreateController();
+            controller.Get(_repo.Keys.First()).Content.ReadAsStringAsync().Result.ShouldEqual(_repo.Values.First().Title);
         }
 
         [Test]
         public void GetRespondsWithLastModifiedWhenTheContentSupportsIt()
         {
             DateTimeOffset modified = DateTime.Today;
-            var repo = new ChartRepo { { "123", new ChartWithLastModifiedDate { Id = "123", LastModified = modified } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
+            _repo.Add("123", new ChartWithLastModifiedDate { Id = "123", LastModified = modified });
+            var controller = CreateController();
             controller.Get("123").Content.Headers.LastModified.ShouldEqual(modified);
         }
 
         [Test]
         public void GetRespondsWith200WhenContentExists()
         {
-            var repo = new ChartRepo { { "123", new Chart { Id = "123" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Get("123").StatusCode.ShouldEqual(HttpStatusCode.OK);
+            _repo.AddCharts(1);
+            var controller = CreateController();
+            controller.Get(_repo.Keys.First()).StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void GetRespondsWithETagWhenContentIsETagAware()
         {
-            var repo = new ChartRepo { { "123", new ChartWithETag { Id = "123", ETag = ETag } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
+            _repo.Add("123", new ChartWithETag { Id = "123", ETag = ETag });
+            var controller = CreateController();
             controller.Get("123").Headers.ETag.Tag.ShouldEqual(ETag);
         }
 
         [Test]
         public void HeadRespondsWith200WhenContentExists()
         {
-            var repo = new ChartRepo { { "123", new Chart { Id = "123" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Head("123").StatusCode.ShouldEqual(HttpStatusCode.OK);
+            _repo.AddCharts(1);
+            var controller = CreateController();
+            controller.Head(_repo.Keys.First()).StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void GetRespondsWith404WhenContentDoesNotExist()
         {
-            var repo = new ChartRepo();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
+            var controller = CreateController();
             controller.Get("666").StatusCode.ShouldEqual(HttpStatusCode.NotFound);
         }
 
@@ -65,10 +78,9 @@ namespace WebApi.ControllerTemplates.Tests
         public void GetRespondsWith304WhenIfModifiedSinceEqualsLastModified()
         {
             var modified = DateTimeOffset.Now;
-            var repo = new ChartRepo { { "432", new ChartWithLastModifiedDate { Id = "432", LastModified = modified } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = modified;
+            _repo.Add("432", new ChartWithLastModifiedDate { Id = "432", LastModified = modified });
+            var controller = CreateController();
+            controller.Request.Headers.IfModifiedSince = modified;
             controller.Get("432").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
@@ -76,83 +88,70 @@ namespace WebApi.ControllerTemplates.Tests
         public void GetRespondsWith304WhenIfModifiedSinceIsLaterThanLastModified()
         {
             var modified = DateTimeOffset.Now;
-            var repo = new ChartRepo { { "432", new ChartWithLastModifiedDate { Id = "432", LastModified = modified } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = modified.AddSeconds(1);
-            controller.Get("432").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
+            _repo.Add("654", new ChartWithLastModifiedDate { Id = "654", LastModified = modified });
+            var controller = CreateController();
+            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(1);
+            controller.Get("654").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
         [Test]
         public void GetRespondsWith200WhenIfModifiedSinceIsEarlierThanLastModified()
         {
             var modified = DateTimeOffset.Now;
-            var repo = new ChartRepo { { "432", new ChartWithLastModifiedDate { Id = "432", LastModified = modified } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = modified.AddSeconds(-1);
-            controller.Get("432").StatusCode.ShouldEqual(HttpStatusCode.OK);
+            _repo.Add("098", new ChartWithLastModifiedDate { Id = "098", LastModified = modified });
+            var controller = CreateController();
+            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(-1);
+            controller.Get("098").StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void GetRespondsWithContentWhenIfModifiedSinceIsEarlierThanLastModified()
         {
             var modified = DateTimeOffset.Now;
-            var repo = new ChartRepo { { "876", new ChartWithLastModifiedDate { Id = "876", LastModified = modified } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfModifiedSince = modified.AddSeconds(-1);
+            _repo.Add("876", new ChartWithLastModifiedDate { Id = "876", LastModified = modified });
+            var controller = CreateController();
+            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(-1);
             controller.Get("876").Content.ReadAsStringAsync().Result.ShouldEqual("Chart 876");
         }
 
         [Test]
         public void GetRespondsWith304WhenIfNoneMatchEqualsInstanceETag()
         {
-            var repo = new ChartRepo { { "012", new ChartWithETag { Id = "012", ETag = ETag } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
+            _repo.Add("012", new ChartWithETag { Id = "012", ETag = ETag });
+            var controller = CreateController();
+            controller.Request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
             controller.Get("012").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
         [Test]
         public void GetRespondsWith200WhenIfNoneMatchDoesNotEqualInstanceETag()
         {
-            var repo = new ChartRepo { { "210", new ChartWithETag { Id = "210", ETag = ETag } } };
-            var request = new HttpRequestMessage();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = request };
-            request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag.Replace("9", "6")));
+            _repo.Add("210", new ChartWithETag { Id = "210", ETag = ETag });
+            var controller = CreateController();
+            controller.Request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag.Replace("9", "6")));
             controller.Get("210").StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
         [Test]
         public void HeadRespondsWith404WhenContentDoesNotExist()
         {
-            var repo = new ChartRepo();
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Head("777").StatusCode.ShouldEqual(HttpStatusCode.NotFound);
+            CreateController().Head("777").StatusCode.ShouldEqual(HttpStatusCode.NotFound);
         }
 
         [Test]
         public void PutInsertsDeserialisedInstance()
         {
-            var repo = new ChartRepo();
-            var controller = new InstanceController<Chart, ChartRepo>(repo)
-            {
-                Request =  new HttpRequestMessage { Content = new StringContent ("Selective Reflation") }
-            };
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("shamone");
             controller.Put("123");
-            repo["123"].Title.ShouldEqual("Selective Reflation");
+            _repo["123"].Title.ShouldEqual("shamone");
         }
 
         [Test]
         public void PutRespondsWith201WhenInstanceWasCreated()
         {
-            var repo = new ChartRepo();
-            var controller = new InstanceController<Chart, ChartRepo>(repo)
-            {
-                Request = new HttpRequestMessage { Content = new StringContent("Quantitative Easing") }
-            };
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("oosh");
             var response = controller.Put("321");
             response.StatusCode.ShouldEqual(HttpStatusCode.Created);
         }
@@ -160,11 +159,9 @@ namespace WebApi.ControllerTemplates.Tests
         [Test]
         public void PutRespondsWith200WhenInstanceWasUpdated()
         {
-            var repo = new ChartRepo { { "765", new Chart { Title = "Japanese Inflation" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo)
-            {
-                Request = new HttpRequestMessage { Content = new StringContent("Japanese Inflation") }
-            };
+            _repo.Add("765", new Chart { Title = "bingo" });
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("bingo");
             var response = controller.Put("765");
             response.StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
@@ -172,11 +169,9 @@ namespace WebApi.ControllerTemplates.Tests
         [Test]
         public void PutRespondsWith409WhenUpsertConflicts()
         {
-            var repo = new ChartRepo { EnableConflicts = true };
-            var controller = new InstanceController<Chart, ChartRepo>(repo)
-            {
-                Request = new HttpRequestMessage { Content = new StringContent("Japanese Inflation") }
-            };
+            _repo.EnableConflicts = true;
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("oosh");
             var response = controller.Put("765");
             response.StatusCode.ShouldEqual(HttpStatusCode.Conflict);
         }
@@ -184,30 +179,28 @@ namespace WebApi.ControllerTemplates.Tests
         [Test]
         public void PutUpdatesDeserialisedInstance()
         {
-            var repo = new ChartRepo { { "567", new Chart { Title = "Original" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo)
-                                 {
-                                     Request = new HttpRequestMessage { Content = new StringContent ("Updated") }
-                                 };
+            _repo.Add("567", new Chart { Title = "Original" });
+            var controller = CreateController();
+            controller.Request.Content = new StringContent("Updated");
             controller.Put("567");
-            repo["567"].Title.ShouldEqual("Updated");
+            _repo["567"].Title.ShouldEqual("Updated");
         }
 
         [Test]
         public void DeleteDeletesInstanceById()
         {
-            var repo = new ChartRepo { { "678", new Chart { Title = "Deletable" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Delete("678");
-            repo.Count.ShouldEqual(0);
+            _repo.AddCharts(1);
+            var controller = CreateController();
+            controller.Delete(_repo.Keys.First());
+            _repo.Count.ShouldEqual(0);
         }
 
         [Test]
         public void DeleteRespondsWith204()
         {
-            var repo = new ChartRepo { { "678", new Chart { Title = "Deletable" } } };
-            var controller = new InstanceController<Chart, ChartRepo>(repo) { Request = new HttpRequestMessage() };
-            controller.Delete("678").StatusCode.ShouldEqual(HttpStatusCode.NoContent);
+            _repo.AddCharts(1);
+            var controller = CreateController();
+            controller.Delete(_repo.Keys.First()).StatusCode.ShouldEqual(HttpStatusCode.NoContent);
         }
     }
 }

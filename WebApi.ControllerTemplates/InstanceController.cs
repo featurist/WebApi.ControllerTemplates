@@ -54,13 +54,13 @@ namespace WebApi.ControllerTemplates
             return PutDeserialised(id, instance);
         }
 
-        public virtual HttpResponseMessage Delete(string id)
+        protected virtual HttpResponseMessage Delete(string id)
         {
             _deleter.Delete(id);
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        public virtual HttpResponseMessage Head(string id)
+        protected virtual HttpResponseMessage Head(string id)
         {
             return Get(id);
         }

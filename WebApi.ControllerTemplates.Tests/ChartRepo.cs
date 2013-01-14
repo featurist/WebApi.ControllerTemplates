@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using RestfulRoles;
 using WebApi.ControllerTemplates.Roles;
@@ -112,5 +113,14 @@ namespace WebApi.ControllerTemplates.Tests
         public DateTimeOffset? IndexLastModified { get; set; }
 
         public bool EnableConflicts { get; set; }
+
+        public void AddCharts(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var id = i.ToString(CultureInfo.InvariantCulture);
+                Add(id, new Chart { Id = id, Title = "Chart " + i });
+            }
+        }
     }
 }

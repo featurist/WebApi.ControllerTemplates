@@ -50,6 +50,8 @@
     <Compile Include="ChartIndex.cs" />
     <Compile Include="ChartRepo.cs" />
     <Compile Include="CollectionControllerTests.cs" />
+    <Compile Include="ExampleCollectionController.cs" />
+    <Compile Include="ExampleInstanceController.cs" />
     <Compile Include="InstanceControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
