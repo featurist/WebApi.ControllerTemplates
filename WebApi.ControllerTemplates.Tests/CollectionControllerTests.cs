@@ -13,19 +13,19 @@ namespace WebApi.ControllerTemplates.Tests
     {
         const string ETag = "\"684897696a7c876b7a\"";
 
-        private ExampleCollectionController<ChartIndex, Chart, ChartRepo> CreateController()
+        private CollectionController<ChartIndex, Chart, ChartRepo> CreateController()
         {
-            return new ExampleCollectionController<ChartIndex, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+            return new CollectionController<ChartIndex, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
         }
 
-        private ExampleCollectionController<ChartIndexWithETag, Chart, ChartRepo> CreateControllerWithETagSupport()
+        private CollectionController<ChartIndexWithETag, Chart, ChartRepo> CreateControllerWithETagSupport()
         {
-            return new ExampleCollectionController<ChartIndexWithETag, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+            return new CollectionController<ChartIndexWithETag, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
         }
 
-        private ExampleCollectionController<ChartIndexWithLastModified, Chart, ChartRepo> CreateControllerWithLastModifiedSupport()
+        private CollectionController<ChartIndexWithLastModified, Chart, ChartRepo> CreateControllerWithLastModifiedSupport()
         {
-            return new ExampleCollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+            return new CollectionController<ChartIndexWithLastModified, Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
         }
 
         private ChartRepo _repo;

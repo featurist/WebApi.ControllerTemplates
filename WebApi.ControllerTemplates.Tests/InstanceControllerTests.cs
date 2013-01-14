@@ -13,17 +13,19 @@ namespace WebApi.ControllerTemplates.Tests
     {
         const string ETag = "\"686897696a7c876b7e\"";
 
-        private ExampleInstanceController<Chart, ChartRepo> CreateController()
+        private InstanceController<Chart, ChartRepo> CreateController()
         {
-            return new ExampleInstanceController<Chart, ChartRepo>(_repo) { Request = new HttpRequestMessage() };
+            return new InstanceController<Chart, ChartRepo>(_repo) { Request = _request };
         }
 
         private ChartRepo _repo;
+        private HttpRequestMessage _request;
 
         [SetUp]
         public void CreateRepo()
         {
             _repo = new ChartRepo();
+            _request = new HttpRequestMessage();
         }
 
         [Test]
@@ -80,7 +82,7 @@ namespace WebApi.ControllerTemplates.Tests
             var modified = DateTimeOffset.Now;
             _repo.Add("432", new ChartWithLastModifiedDate { Id = "432", LastModified = modified });
             var controller = CreateController();
-            controller.Request.Headers.IfModifiedSince = modified;
+            _request.Headers.IfModifiedSince = modified;
             controller.Get("432").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
@@ -90,7 +92,7 @@ namespace WebApi.ControllerTemplates.Tests
             var modified = DateTimeOffset.Now;
             _repo.Add("654", new ChartWithLastModifiedDate { Id = "654", LastModified = modified });
             var controller = CreateController();
-            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(1);
+            _request.Headers.IfModifiedSince = modified.AddSeconds(1);
             controller.Get("654").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
@@ -100,7 +102,7 @@ namespace WebApi.ControllerTemplates.Tests
             var modified = DateTimeOffset.Now;
             _repo.Add("098", new ChartWithLastModifiedDate { Id = "098", LastModified = modified });
             var controller = CreateController();
-            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(-1);
+            _request.Headers.IfModifiedSince = modified.AddSeconds(-1);
             controller.Get("098").StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
@@ -110,7 +112,7 @@ namespace WebApi.ControllerTemplates.Tests
             var modified = DateTimeOffset.Now;
             _repo.Add("876", new ChartWithLastModifiedDate { Id = "876", LastModified = modified });
             var controller = CreateController();
-            controller.Request.Headers.IfModifiedSince = modified.AddSeconds(-1);
+            _request.Headers.IfModifiedSince = modified.AddSeconds(-1);
             controller.Get("876").Content.ReadAsStringAsync().Result.ShouldEqual("Chart 876");
         }
 
@@ -119,7 +121,7 @@ namespace WebApi.ControllerTemplates.Tests
         {
             _repo.Add("012", new ChartWithETag { Id = "012", ETag = ETag });
             var controller = CreateController();
-            controller.Request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
+            _request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag));
             controller.Get("012").StatusCode.ShouldEqual(HttpStatusCode.NotModified);
         }
 
@@ -128,7 +130,7 @@ namespace WebApi.ControllerTemplates.Tests
         {
             _repo.Add("210", new ChartWithETag { Id = "210", ETag = ETag });
             var controller = CreateController();
-            controller.Request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag.Replace("9", "6")));
+            _request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(ETag.Replace("9", "6")));
             controller.Get("210").StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
 
@@ -142,7 +144,7 @@ namespace WebApi.ControllerTemplates.Tests
         public void PutInsertsDeserialisedInstance()
         {
             var controller = CreateController();
-            controller.Request.Content = new StringContent("shamone");
+            _request.Content = new StringContent("shamone");
             controller.Put("123");
             _repo["123"].Title.ShouldEqual("shamone");
         }
@@ -151,7 +153,7 @@ namespace WebApi.ControllerTemplates.Tests
         public void PutRespondsWith201WhenInstanceWasCreated()
         {
             var controller = CreateController();
-            controller.Request.Content = new StringContent("oosh");
+            _request.Content = new StringContent("oosh");
             var response = controller.Put("321");
             response.StatusCode.ShouldEqual(HttpStatusCode.Created);
         }
@@ -161,7 +163,7 @@ namespace WebApi.ControllerTemplates.Tests
         {
             _repo.Add("765", new Chart { Title = "bingo" });
             var controller = CreateController();
-            controller.Request.Content = new StringContent("bingo");
+            _request.Content = new StringContent("bingo");
             var response = controller.Put("765");
             response.StatusCode.ShouldEqual(HttpStatusCode.OK);
         }
@@ -171,7 +173,7 @@ namespace WebApi.ControllerTemplates.Tests
         {
             _repo.EnableConflicts = true;
             var controller = CreateController();
-            controller.Request.Content = new StringContent("oosh");
+            _request.Content = new StringContent("oosh");
             var response = controller.Put("765");
             response.StatusCode.ShouldEqual(HttpStatusCode.Conflict);
         }
@@ -181,7 +183,7 @@ namespace WebApi.ControllerTemplates.Tests
         {
             _repo.Add("567", new Chart { Title = "Original" });
             var controller = CreateController();
-            controller.Request.Content = new StringContent("Updated");
+            _request.Content = new StringContent("Updated");
             controller.Put("567");
             _repo["567"].Title.ShouldEqual("Updated");
         }

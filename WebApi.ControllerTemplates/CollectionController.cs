@@ -27,26 +27,17 @@ namespace WebApi.ControllerTemplates
         }
     }
 
-    public abstract class CollectionController<TCollection, TInstance> : AbstractRestController<TCollection>
+    public abstract class CollectionController<TCollection, TInstance> : ReadOnlyCollectionController<TCollection>
     {
         private readonly Inserter<TInstance> _inserter;
-        private readonly Indexer<TCollection> _indexer;
-        private readonly Serialiser<TCollection> _serialiser;
         private readonly Deserialiser<TInstance> _deserialiser;
         private readonly UrlGenerator _urlGenerator;
 
-        protected CollectionController(Inserter<TInstance> inserter, Indexer<TCollection> indexer, Serialiser<TCollection> serialiser, Deserialiser<TInstance> deserialiser, UrlGenerator urlGenerator)
+        protected CollectionController(Inserter<TInstance> inserter, Indexer<TCollection> indexer, Serialiser<TCollection> serialiser, Deserialiser<TInstance> deserialiser, UrlGenerator urlGenerator) : base(indexer, serialiser)
         {
             _inserter = inserter;
-            _indexer = indexer;
-            _serialiser = serialiser;
             _deserialiser = deserialiser;
             _urlGenerator = urlGenerator;
-        }
-
-        public virtual HttpResponseMessage Get()
-        {
-            return new GetIndexController<TCollection>(_indexer, _serialiser) { Request = Request }.Get();
         }
 
         public virtual HttpResponseMessage Post()
@@ -57,11 +48,6 @@ namespace WebApi.ControllerTemplates
             var response = Request.CreateResponse(HttpStatusCode.Created);
             response.Headers.Location = new Uri(url, UriKind.RelativeOrAbsolute);
             return response;
-        }
-
-        public virtual HttpResponseMessage Head()
-        {
-            return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         public virtual HttpResponseMessage Delete()

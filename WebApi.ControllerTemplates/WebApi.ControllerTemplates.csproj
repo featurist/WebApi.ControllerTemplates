@@ -50,10 +50,10 @@
     <Compile Include="AbstractRestController.cs" />
     <Compile Include="CollectionController.cs" />
     <Compile Include="Roles\Deserialiser.cs" />
-    <Compile Include="GetIndexController.cs" />
+    <Compile Include="ReadOnlyCollectionController.cs" />
     <Compile Include="HttpRequestMessageExtensions.cs" />
     <Compile Include="InstanceController.cs" />
-    <Compile Include="GetInstanceController.cs" />
+    <Compile Include="ReadOnlyInstanceController.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Roles\Serialiser.cs" />

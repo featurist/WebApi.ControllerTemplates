@@ -26,26 +26,18 @@ namespace WebApi.ControllerTemplates
         }
     }
 
-    public abstract class InstanceController<TInstance> : AbstractRestController<TInstance>
+    public abstract class InstanceController<TInstance> : ReadOnlyInstanceController<TInstance>
     {
-        private readonly Retriever<TInstance> _retriever;
         private readonly Upserter<TInstance> _upserter;
-        private readonly Serialiser<TInstance> _serialiser;
         private readonly Deserialiser<TInstance> _deserialiser;
         private readonly Deleter _deleter;
 
         protected InstanceController(Retriever<TInstance> retriever, Upserter<TInstance> upserter, Serialiser<TInstance> serialiser, Deserialiser<TInstance> deserialiser, Deleter deleter)
+            : base(retriever, serialiser)
         {
-            _retriever = retriever;
             _upserter = upserter;
-            _serialiser = serialiser;
             _deserialiser = deserialiser;
             _deleter = deleter;
-        }
-
-        public virtual HttpResponseMessage Get(string id)
-        {
-            return new GetInstanceController<TInstance>(_retriever, _serialiser) { Request = Request }.Get(id);
         }
 
         public virtual HttpResponseMessage Put(string id)
@@ -54,15 +46,10 @@ namespace WebApi.ControllerTemplates
             return PutDeserialised(id, instance);
         }
 
-        protected virtual HttpResponseMessage Delete(string id)
+        public virtual HttpResponseMessage Delete(string id)
         {
             _deleter.Delete(id);
             return Request.CreateResponse(HttpStatusCode.NoContent);
-        }
-
-        protected virtual HttpResponseMessage Head(string id)
-        {
-            return Get(id);
         }
 
         protected virtual HttpResponseMessage PutDeserialised(string id, TInstance instance)
