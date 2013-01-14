@@ -8,12 +8,9 @@ using WebApi.ControllerTemplates.Roles;
 namespace WebApi.ControllerTemplates.Tests
 {
     public class ChartRepo : Dictionary<string, Chart>,
-        Retriever<Chart>,
-        Upserter<Chart>,
+        Repository<Chart>,
         Serialiser<Chart>,
         Deserialiser<Chart>,
-        Deleter,
-        Inserter<Chart>,
         Serialiser<ChartIndex>,
         UrlGenerator,
         Indexer<ChartIndex>,

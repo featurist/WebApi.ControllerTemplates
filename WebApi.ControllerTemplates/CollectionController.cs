@@ -14,15 +14,27 @@ namespace WebApi.ControllerTemplates
         }
     }
 
-    public class CollectionController<TCollection, TInstance, TInserter, TIndexer, TSerialiser, TDeserialiser, TUrlGenerator> : CollectionController<TCollection, TInstance>
+    public class CollectionController<TCollection, TInstance, TRepo, TUrlGenerator, TSerialiser, TDeserialiser> : CollectionController<TCollection, TInstance>
+        where TRepo : Inserter<TInstance>, Indexer<TCollection>
+        where TSerialiser : Serialiser<TCollection>
+        where TDeserialiser : Deserialiser<TInstance>
+        where TUrlGenerator : UrlGenerator
+    {
+        public CollectionController(TRepo repo, TUrlGenerator urlGenerator, TSerialiser serialiser, TDeserialiser deserialiser)
+            : base(repo, repo, urlGenerator, serialiser, deserialiser)
+        {
+        }
+    }
+
+    public class CollectionController<TCollection, TInstance, TInserter, TIndexer, TUrlGenerator, TSerialiser, TDeserialiser> : CollectionController<TCollection, TInstance>
         where TInserter : Inserter<TInstance>
         where TIndexer : Indexer<TCollection>
         where TSerialiser : Serialiser<TCollection>
         where TDeserialiser : Deserialiser<TInstance>
         where TUrlGenerator : UrlGenerator
     {
-        public CollectionController(TInserter inserter, TIndexer indexer, TSerialiser serialiser, TDeserialiser deserialiser, TUrlGenerator urlGenerator)
-            : base(inserter, indexer, serialiser, deserialiser, urlGenerator)
+        public CollectionController(TInserter inserter, TIndexer indexer, TUrlGenerator urlGenerator, TSerialiser serialiser, TDeserialiser deserialiser)
+            : base(inserter, indexer, urlGenerator, serialiser, deserialiser)
         {
         }
     }
@@ -33,7 +45,7 @@ namespace WebApi.ControllerTemplates
         private readonly Deserialiser<TInstance> _deserialiser;
         private readonly UrlGenerator _urlGenerator;
 
-        protected CollectionController(Inserter<TInstance> inserter, Indexer<TCollection> indexer, Serialiser<TCollection> serialiser, Deserialiser<TInstance> deserialiser, UrlGenerator urlGenerator) : base(indexer, serialiser)
+        protected CollectionController(Inserter<TInstance> inserter, Indexer<TCollection> indexer, UrlGenerator urlGenerator, Serialiser<TCollection> serialiser, Deserialiser<TInstance> deserialiser) : base(indexer, serialiser)
         {
             _inserter = inserter;
             _deserialiser = deserialiser;
@@ -45,14 +57,19 @@ namespace WebApi.ControllerTemplates
             var deserialised = _deserialiser.Deserialise(Request);
             var id = _inserter.Insert(deserialised);
             var url = _urlGenerator.GenerateUrl(id);
-            var response = Request.CreateResponse(HttpStatusCode.Created);
-            response.Headers.Location = new Uri(url, UriKind.RelativeOrAbsolute);
-            return response;
+            return RespondWithLocation(url);
         }
 
         public virtual HttpResponseMessage Delete()
         {
             return new HttpResponseMessage(HttpStatusCode.NotAcceptable);
+        }
+
+        protected virtual HttpResponseMessage RespondWithLocation(string url)
+        {
+            var response = Request.CreateResponse(HttpStatusCode.Created);
+            response.Headers.Location = new Uri(url, UriKind.RelativeOrAbsolute);
+            return response;
         }
     }
 }

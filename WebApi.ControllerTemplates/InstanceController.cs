@@ -12,7 +12,18 @@ namespace WebApi.ControllerTemplates
         {
         }
     }
-    
+
+    public class InstanceController<TInstance, TRepo, TSerialiser, TDeserialiser> : InstanceController<TInstance>
+        where TRepo : Retriever<TInstance>, Upserter<TInstance>, Deleter
+        where TSerialiser : Serialiser<TInstance>
+        where TDeserialiser : Deserialiser<TInstance>
+    {
+        public InstanceController(TRepo repo, TSerialiser serialiser, TDeserialiser deserialiser)
+            : base(repo, repo, repo, serialiser, deserialiser)
+        {
+        }
+    }
+
     public class InstanceController<TInstance, TRetriever, TUpserter, TSerialiser, TDeserialiser, TDeleter> : InstanceController<TInstance>
         where TRetriever : Retriever<TInstance>
         where TUpserter : Upserter<TInstance>
@@ -20,8 +31,8 @@ namespace WebApi.ControllerTemplates
         where TDeserialiser : Deserialiser<TInstance>
         where TDeleter : Deleter
     {
-        public InstanceController(TRetriever retriever, TUpserter upserter, TSerialiser serialiser, TDeserialiser deserialiser, TDeleter deleter)
-            : base(retriever, upserter, serialiser, deserialiser, deleter)
+        public InstanceController(TRetriever retriever, TUpserter upserter, TDeleter deleter, TSerialiser serialiser, TDeserialiser deserialiser)
+            : base(retriever, upserter, deleter, serialiser, deserialiser)
         {
         }
     }
@@ -32,7 +43,7 @@ namespace WebApi.ControllerTemplates
         private readonly Deserialiser<TInstance> _deserialiser;
         private readonly Deleter _deleter;
 
-        protected InstanceController(Retriever<TInstance> retriever, Upserter<TInstance> upserter, Serialiser<TInstance> serialiser, Deserialiser<TInstance> deserialiser, Deleter deleter)
+        protected InstanceController(Retriever<TInstance> retriever, Upserter<TInstance> upserter, Deleter deleter, Serialiser<TInstance> serialiser, Deserialiser<TInstance> deserialiser)
             : base(retriever, serialiser)
         {
             _upserter = upserter;
